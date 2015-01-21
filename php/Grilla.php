@@ -18,7 +18,7 @@ $Grid->addColumn(array(
 $Grid->selectData(array(
     "criterio"=>$criterio,
     "class"=>"ConsultarData",
-    "method"=>"getData"
+    "method"=>"getDataSP"
 ));
 
 echo $Grid->render();
