@@ -20,6 +20,36 @@ class DataGrid{
         return $header;
     }
 
+    private function createRows(){
+        $tbody  = '<tbody>';
+        
+        if(count($this->_data)){
+            foreach ($this->_data as $row) {
+                $tbody .= '<tr>';
+                foreach ($this->_columns as $col){
+                    $campo = isset($col['campo'])?$col['campo']:'';
+                    
+                    if(empty($campo)){
+                        $f = 'Campo indefinido';
+                    }else{
+                        $f = $row[$campo];
+                    }
+                    
+                    $tbody .= '<td>'.$f.'</td>';
+                    
+                }
+                $tbody .= '</tr>';
+            }
+        }else{
+            $tbody .= '<tr>';
+            $tbody .=   '<td colspan="'.count($this->_columns).'" style="text-align:center">No se encontraron registros.</td>';
+            $tbody .= '</tr>';
+        }
+        
+        $tbody .= '</tbody>';
+        return $tbody;
+    }
+
     public function addColumn($obj){
         $this->_columns[] = $obj;
     }
@@ -39,6 +69,7 @@ class DataGrid{
     public function render(){
         $table  = '<table border="1" width="100%">';
         $table .= $this->createHead();
+        $table .= $this->createRows();
         $table .= '</table>';
         
         return $table;
