@@ -18,10 +18,10 @@ class ConsultarData{
         return $result;
     }
     
-    public function getDataSP($flag,$criterio=''){
+    public function getDataSP($flag,$criterio='',$page,$regxpag){
         $DB = new Connect();
         
-        $sql = "CALL dataGrid('".$criterio."')";
+        $sql = "CALL dataGrid('".$flag."','".$criterio."','".$page."','".$regxpag."')";
         
         $data = $DB->query($sql);
         $result = $data->fetchAll(PDO::FETCH_ASSOC);

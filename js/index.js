@@ -8,12 +8,12 @@ var index_ = function(){
     
     _public.init = function(){
         $('#btnGrid').click(function(){
-            index.getDatagrid();
+            index.getDatagrid('',1,10);
         });
     };
     
-    _public.getDatagrid = function(){
-        var datos = '';
+    _public.getDatagrid = function(criterio,page,regxpag){
+        var datos = '&_criterio='+criterio+'&_page='+page+'&_regxpag='+regxpag;
         
         $.ajax({
             type: "POST",
