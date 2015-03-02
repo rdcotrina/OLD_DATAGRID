@@ -4,6 +4,7 @@ class DataGrid{
     
     private $_id;
     private $_columns = array();        /*almacena las columnas*/
+    private $_axions  = array();        /*almacena las acciones*/
     private $_data;                     /*almacena la data*/
     public  $totalRegistros;           /*almacena el total de registros*/
     private $_paginate;
@@ -23,10 +24,42 @@ class DataGrid{
             
             $header .= '<th>'.$title.'</th>';
         }
+        if($this->_axions){
+            $header .= '<th>Acciones</th>';
+        }
         $header .=      '</tr>';
         $header .= '</thead>';
         
         return $header;
+    }
+
+    private function createAxions($row){
+        $btn = '';
+        foreach ($this->_axions as $a){
+            $titulo = isset($a['titulo'])?$a['titulo']:'title';
+            $icono  = isset($a['icono'])?$a['icono']:'';
+            $ajax   = isset($a['ajax'])?$a['ajax']:'';
+            $funjs  = isset($ajax['funcion'])?$ajax['funcion']:'';
+            $params = isset($ajax['params'])?$ajax['params']:'';
+            
+            $parametros = '';
+            
+            if($params != ''){
+                if(is_array($params)){
+                    foreach ($params as $p){
+                        $parametros .= "'".$row[$p]."',";
+                    }
+                }else{
+                    $parametros .= "'".$row[$params]."',";
+                }
+            }
+            $parametros = substr_replace($parametros, "", -1);
+            $onc = $funjs.'('.$parametros.')';
+            
+            $btn .= '<button class="btn btn-default" title="'.$titulo.'" onclick="'.$onc.'"><i class="'.$icono.'"></i></button>';
+        }
+        
+        return $btn;
     }
 
     private function createRows(){
@@ -47,11 +80,19 @@ class DataGrid{
                     $tbody .= '<td>'.$f.'</td>';
                     
                 }
+                /*creando acciones*/
+                if($this->_axions){
+                    $tbody .= '<td style="text-align:center">'.$this->createAxions($row).'</td>';
+                }
                 $tbody .= '</tr>';
             }
         }else{
+            $colspan = count($this->_columns);
+            if($this->_axions){
+                $colspan++;
+            }
             $tbody .= '<tr>';
-            $tbody .=   '<td colspan="'.count($this->_columns).'" style="text-align:center">No se encontraron registros.</td>';
+            $tbody .=   '<td colspan="'.$colspan.'" style="text-align:center">No se encontraron registros.</td>';
             $tbody .= '</tr>';
         }
         
@@ -150,6 +191,10 @@ class DataGrid{
 
     public function addColumn($obj){
         $this->_columns[] = $obj;
+    }
+    
+    public function addAccion($obj){
+        $this->_axions[] = $obj;
     }
     
     public function selectData($obj){

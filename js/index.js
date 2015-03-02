@@ -26,6 +26,10 @@ var index_ = function(){
         });
     };
     
+    _public.edit = function(ape,nom){
+        alert(ape+' - '+nom)
+    };
+    
     return _public;
     
 };

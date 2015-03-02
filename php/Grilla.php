@@ -17,6 +17,31 @@ $Grid->addColumn(array(
     "title"=>"Apellidos",
     "campo"=>"apellidos"
 ));
+$Grid->addAccion(array(
+    "titulo"=>"Editar",
+    "icono"=>"glyphicon glyphicon-pencil",
+    "ajax"=>array(
+        "funcion"=>"index.edit",
+        "params"=>array("apellidos","nombres")
+    )
+));
+$Grid->addAccion(array(
+    "titulo"=>"Editar",
+    "icono"=>"glyphicon glyphicon-pencil",
+    "ajax"=>array(
+        "funcion"=>"index.edit",
+        "params"=>array("apellidos","nombres")
+    )
+));
+$Grid->addAccion(array(
+    "titulo"=>"Editar",
+    "icono"=>"glyphicon glyphicon-pencil",
+    "ajax"=>array(
+        "funcion"=>"index.edit",
+        "params"=>array("apellidos","nombres")
+    )
+));
+
 $Grid->selectData(array(
     "info"=>true,
     "criterio"=>$criterio,
