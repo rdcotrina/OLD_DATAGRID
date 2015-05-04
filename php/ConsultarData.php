@@ -25,11 +25,9 @@ class ConsultarData extends Connect{
     }
     
     public function __getDataSP($flag,$criterio='',$page,$regxpag){
-        $DB = new Connect();
-        
         $sql = "CALL dataGrid('".$flag."','".$criterio."','".$page."','".$regxpag."'); ";
         
-        $data = $DB->query($sql);
+        $data = $this->_DB->query($sql);
         $result = $data->fetchAll(PDO::FETCH_ASSOC);
        
         return $result;
