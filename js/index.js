@@ -30,6 +30,10 @@ var index_ = function(){
         alert(ape+' - '+nom)
     };
     
+    _public.check = function(ape,nom){
+        alert(ape+'--'+nom)
+    };
+    
     return _public;
     
 };

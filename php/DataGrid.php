@@ -15,10 +15,28 @@ class DataGrid{
     private $_info;
     private $_infoText;
     private $_changeNum = array(10,20,50,100);
+    private $_check = false;
+    private $_objCheck;
 
     private function createHead(){
         $header  = '<thead>';
         $header .=      '<tr>';
+        
+        if($this->_check){
+            $header .= '<th style="width:1%">'
+                    . '<input type="checkbox" id="chk_'.$this->_id.'_all" name="chk_'.$this->_id.'_all" onclick="'
+                    . 'if($(this).is(\':checked\')){
+                            $(\'#' . $this->_id . '\').find(\'tbody\').find(\'tr\').each(function(){
+                                $(this).find(\'input:checkbox\').attr(\'checked\',\'checked\');
+                            });
+                        }else{
+                            $(\'#' . $this->_id . '\').find(\'tbody\').find(\'tr\').each(function(){
+                                $(this).find(\'input:checkbox\').removeAttr(\'checked\');
+                            });
+                        }'
+                    . '">'
+                    . '</th>';
+        }
         foreach ($this->_columns as $value) {
             $title = isset($value['title'])?$value['title']:'Title';
             
@@ -62,12 +80,56 @@ class DataGrid{
         return $btn;
     }
 
+    private function renderCheckbox($fila,$data){
+        $valores = '';
+        $values  = $this->_objCheck['values'];
+        $ajax   = isset($this->_objCheck['ajax'])?$this->_objCheck['ajax']:'';
+        $funjs  = isset($ajax['funcion'])?$ajax['funcion']:'';
+        $params = isset($ajax['params'])?$ajax['params']:'';
+
+        $parametros = '';
+
+        if($params != ''){
+            if(is_array($params)){
+                foreach ($params as $p){
+                    $parametros .= "'".$data[$p]."',";
+                }
+            }else{
+                $parametros .= "'".$data[$params]."',";
+            }
+        }
+        $parametros = substr_replace($parametros, "", -1);
+        $onc = $funjs.'('.$parametros.')';
+        
+        
+        if(is_array($values)){
+            foreach($values as $v){
+                $valores .= $data[$v].'*';
+            }
+            $valores = substr_replace($valores, "", -1);
+        }else{
+            $valores .= $data[$values];
+        }
+        
+        $td = '<td>'
+            . '<input type="checkbox" id="chk_'.$this->_id.$fila.'" name="chk_'.$this->_id.'[]" values="'.$valores.'" onclick="'.$onc.'"/>'
+            . '</td>';
+        return $td;
+    }
+
     private function createRows(){
+        $rw = 0;
         $tbody  = '<tbody>';
         
         if(count($this->_data)){
             foreach ($this->_data as $row) {
+                $rw++;
                 $tbody .= '<tr>';
+                
+                if($this->_check){
+                    $tbody .= $this->renderCheckbox($rw,$row);
+                }
+                
                 foreach ($this->_columns as $col){
                     $campo = isset($col['campo'])?$col['campo']:'';
                     
@@ -197,6 +259,11 @@ class DataGrid{
         $this->_axions[] = $obj;
     }
     
+    public function addCheckBox($obj){
+        $this->_check    = true;
+        $this->_objCheck = $obj;
+    }
+
     public function selectData($obj){
         $this->_criterio = isset($obj['criterio'])?$obj['criterio']:'';
         $this->_info = isset($obj['info'])?$obj['info']:false;
@@ -216,7 +283,7 @@ class DataGrid{
     }
 
     public function render(){
-        $table  = '<table border="1" width="100%" class="table table-striped table-bordered table-hover">';
+        $table  = '<table id="'.$this->_id.'" border="1" width="100%" class="table table-striped table-bordered table-hover">';
         $table .= $this->createHead();
         $table .= $this->createRows();
         $table .= '</table>';

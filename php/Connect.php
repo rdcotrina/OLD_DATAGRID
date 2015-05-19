@@ -1,12 +1,18 @@
 <?php
 class Connect{
     
-    private $host = 'RD\RDCC';
+//    private $host = 'RD\RDCC';
+//    private $port = '3306';
+//    private $user = 'sa';
+//    private $pass = '123';
+//    private $motor = 'sql';
+//    private $dbname = 'rr_';
+    private $host = 'localhost';
     private $port = '3306';
-    private $user = 'sa';
-    private $pass = '123';
-    private $motor = 'sql';
-    private $dbname = 'rr_';
+    private $user = 'root';
+    private $pass = '';
+    private $motor = 'mysql';
+    private $dbname = 'rrhh_';
     
     public function __construct() {
         $conn = new PDO(
