@@ -14,7 +14,16 @@ $Grid->addCheckBox(array(
     "ajax"=>array(
         "funcion"=>"index.check",
         "params"=>array("apellidos","nombres")
-    )
+    ),
+    "fnCallbak"=>function($fila,$row){
+        if($row['genero'] == 'M'){
+            $cadena = '<input type="checkbox" id="chk_gridT'.$fila.'" name="chk_gridT[]" disabled>';
+        }else{
+            $cadena = '<input type="checkbox" id="chk_gridT'.$fila.'" name="chk_gridT[]">';
+        }
+        
+        return $cadena;
+    }
 ));
 
 $Grid->addColumn(array(

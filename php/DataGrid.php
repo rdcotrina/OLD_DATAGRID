@@ -27,7 +27,7 @@ class DataGrid{
                     . '<input type="checkbox" id="chk_'.$this->_id.'_all" name="chk_'.$this->_id.'_all" onclick="'
                     . 'if($(this).is(\':checked\')){
                             $(\'#' . $this->_id . '\').find(\'tbody\').find(\'tr\').each(function(){
-                                $(this).find(\'input:checkbox\').attr(\'checked\',\'checked\');
+                                $(this).find(\'td:eq(0)\').find(\'input:checkbox\').attr(\'checked\',true);
                             });
                         }else{
                             $(\'#' . $this->_id . '\').find(\'tbody\').find(\'tr\').each(function(){
@@ -81,40 +81,53 @@ class DataGrid{
     }
 
     private function renderCheckbox($fila,$data){
-        $valores = '';
-        $values  = $this->_objCheck['values'];
-        $ajax   = isset($this->_objCheck['ajax'])?$this->_objCheck['ajax']:'';
-        $funjs  = isset($ajax['funcion'])?$ajax['funcion']:'';
-        $params = isset($ajax['params'])?$ajax['params']:'';
+        $valores   = '';
+        $values    = $this->_objCheck['values'];
+        $ajax      = isset($this->_objCheck['ajax'])?$this->_objCheck['ajax']:'';
+        $funjs     = isset($ajax['funcion'])?$ajax['funcion']:'';
+        $params    = isset($ajax['params'])?$ajax['params']:'';
+        $fnCallbak = isset($this->_objCheck['fnCallbak'])?$this->_objCheck['fnCallbak']:'';
 
         $parametros = '';
-
-        if($params != ''){
-            if(is_array($params)){
-                foreach ($params as $p){
-                    $parametros .= "'".$data[$p]."',";
-                }
+        $chk = '';
+                
+        if(!empty($fnCallbak)){
+            if(is_callable($fnCallbak)){
+                $call = call_user_func_array($fnCallbak, array($fila,$data));
+                
+                $chk .= $call;
             }else{
-                $parametros .= "'".$data[$params]."',";
+                $chk .= 'ERROR: [fnCallbak] incorrecto, defina clusure para [fnCallbak].';
             }
-        }
-        $parametros = substr_replace($parametros, "", -1);
-        $onc = $funjs.'('.$parametros.')';
-        
-        
-        if(is_array($values)){
-            foreach($values as $v){
-                $valores .= $data[$v].'*';
-            }
-            $valores = substr_replace($valores, "", -1);
         }else{
-            $valores .= $data[$values];
+            if($params != ''){
+                if(is_array($params)){
+                    foreach ($params as $p){
+                        $parametros .= "'".$data[$p]."',";
+                    }
+                }else{
+                    $parametros .= "'".$data[$params]."',";
+                }
+            }
+            $parametros = substr_replace($parametros, "", -1);
+            $onc = $funjs.'('.$parametros.')';
+
+
+            if(is_array($values)){
+                foreach($values as $v){
+                    $valores .= $data[$v].'*';
+                }
+                $valores = substr_replace($valores, "", -1);
+            }else{
+                $valores .= $data[$values];
+            }
+
+            $chk .= '<input type="checkbox" name="chk_'.$this->_id.'[]" id="chk_'.$this->_id.$fila.'" values="'.$valores.'" onclick="'.$onc.'" />';
         }
         
-        $td = '<td>'
-            . '<input type="checkbox" id="chk_'.$this->_id.$fila.'" name="chk_'.$this->_id.'[]" values="'.$valores.'" onclick="'.$onc.'"/>'
-            . '</td>';
-        return $td;
+        $td2 = '<td>'.$chk.'</td>';
+        
+        return $td2;
     }
 
     private function createRows(){

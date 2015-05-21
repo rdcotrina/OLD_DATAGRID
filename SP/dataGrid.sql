@@ -15,7 +15,6 @@ BEGIN
 	DECLARE search VARCHAR(200) DEFAULT '';
 	DECLARE _pag_actual INT;
 	
-
 	SET _pag_actual=(_pagina - 1) * _reg_x_pag;
 	
 	IF _criterio != '' THEN
@@ -40,6 +39,7 @@ BEGIN
 	SELECT  
 		nombres, 
 		apellidos, 
+		genero,
 		@countx AS total 
 	FROM f_trabajador 
 	',search,' 
