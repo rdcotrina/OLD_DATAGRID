@@ -25,15 +25,15 @@ class DataGrid{
         if($this->_check){
             $header .= '<th style="width:1%">'
                     . '<input type="checkbox" id="chk_'.$this->_id.'_all" name="chk_'.$this->_id.'_all" onclick="'
-                    . 'if($(this).is(\':checked\')){
-                            $(\'#' . $this->_id . '\').find(\'tbody\').find(\'tr\').each(function(){
-                                $(this).find(\'td:eq(0)\').find(\'input:checkbox\').attr(\'checked\',true);
-                            });
-                        }else{
-                            $(\'#' . $this->_id . '\').find(\'tbody\').find(\'tr\').each(function(){
-                                $(this).find(\'input:checkbox\').removeAttr(\'checked\');
-                            });
-                        }'
+                    . '
+                        var chk = $(this);
+                        $(\'#' . $this->_id . '\').find(\'tbody\').find(\'tr\').each(function(){
+                            if(chk.is(\':checked\')){
+                                $(this).find(\':checkbox\').attr(\'checked\',true);
+                            }else{
+                                $(this).find(\':checkbox\').attr(\'checked\',false);
+                            }
+                        });'
                     . '">'
                     . '</th>';
         }
@@ -51,7 +51,7 @@ class DataGrid{
         return $header;
     }
 
-    private function createAxions($row){
+    private function createAxions($row,$fila){
         $btn = '';
         foreach ($this->_axions as $a){
             $titulo = isset($a['titulo'])?$a['titulo']:'title';
@@ -59,22 +59,35 @@ class DataGrid{
             $ajax   = isset($a['ajax'])?$a['ajax']:'';
             $funjs  = isset($ajax['funcion'])?$ajax['funcion']:'';
             $params = isset($ajax['params'])?$ajax['params']:'';
+            $fnCallbak = isset($a['fnCallbak'])?$a['fnCallbak']:'';
             
             $parametros = '';
             
-            if($params != ''){
-                if(is_array($params)){
-                    foreach ($params as $p){
-                        $parametros .= "'".$row[$p]."',";
-                    }
+            if(!empty($fnCallbak)){
+                if(is_callable($fnCallbak)){
+                    $call = call_user_func_array($fnCallbak, array($fila,$row));
+
+                    $btn .= $call;
                 }else{
-                    $parametros .= "'".$row[$params]."',";
+                    $btn .= 'ERROR: [fnCallbak] incorrecto, defina clusure para [fnCallbak].';
                 }
+            }else{
+                if($params != ''){
+                    if(is_array($params)){
+                        foreach ($params as $p){
+                            $parametros .= "'".$row[$p]."',";
+                        }
+                    }else{
+                        $parametros .= "'".$row[$params]."',";
+                    }
+                }
+                $parametros = substr_replace($parametros, "", -1);
+                $onc = $funjs.'('.$parametros.')';
+                
+                $btn .= '<button class="btn btn-default" title="'.$titulo.'" onclick="'.$onc.'"><i class="'.$icono.'"></i></button>';
             }
-            $parametros = substr_replace($parametros, "", -1);
-            $onc = $funjs.'('.$parametros.')';
             
-            $btn .= '<button class="btn btn-default" title="'.$titulo.'" onclick="'.$onc.'"><i class="'.$icono.'"></i></button>';
+            
         }
         
         return $btn;
@@ -145,19 +158,32 @@ class DataGrid{
                 
                 foreach ($this->_columns as $col){
                     $campo = isset($col['campo'])?$col['campo']:'';
+                    $fnCallbak = isset($col['fnCallbak'])?$col['fnCallbak']:'';
                     
-                    if(empty($campo)){
-                        $f = 'Campo indefinido';
+                    
+                    if(!empty($fnCallbak)){
+                        if(is_callable($fnCallbak)){
+                            $call = call_user_func_array($fnCallbak, array($rw,$row));
+
+                            $f .= $call;
+                        }else{
+                            $f .= 'ERROR: [fnCallbak] incorrecto, defina clusure para [fnCallbak].';
+                        }
                     }else{
-                        $f = $row[$campo];
+                        if(empty($campo)){
+                            $f = 'Campo indefinido';
+                        }else{
+                            $f = $row[$campo];
+                        }
                     }
+                    
                     
                     $tbody .= '<td>'.$f.'</td>';
                     
                 }
                 /*creando acciones*/
                 if($this->_axions){
-                    $tbody .= '<td style="text-align:center">'.$this->createAxions($row).'</td>';
+                    $tbody .= '<td style="text-align:center">'.$this->createAxions($row,$rw).'</td>';
                 }
                 $tbody .= '</tr>';
             }

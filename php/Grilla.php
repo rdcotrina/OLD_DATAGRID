@@ -32,7 +32,11 @@ $Grid->addColumn(array(
 ));
 $Grid->addColumn(array(
     "title"=>"Apellidos",
-    "campo"=>"apellidos"
+    "campo"=>"apellidos",
+    "fnCallbak"=>function($fila,$row){
+        $cadena = $row['nombres'].' - '.$row['apellidos'];
+        return $cadena;
+    }
 ));
 $Grid->addAccion(array(
     "titulo"=>"Editar",
@@ -40,7 +44,11 @@ $Grid->addAccion(array(
     "ajax"=>array(
         "funcion"=>"index.edit",
         "params"=>array("apellidos","nombres")
-    )
+    ),
+    "fnCallbak"=>function($fila,$row){
+        $cadena = $fila.'.- '.$row['nombres'].' - '.$row['apellidos'];
+        return $cadena;
+    }
 ));
 $Grid->addAccion(array(
     "titulo"=>"Editar",
