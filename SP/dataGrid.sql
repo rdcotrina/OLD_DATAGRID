@@ -14,6 +14,7 @@ BEGIN
 		
 	DECLARE search VARCHAR(200) DEFAULT '';
 	DECLARE _pag_actual INT;
+	DECLARE _limit VARCHAR(300) DEFAULT '';
 	
 	SET _pag_actual=(_pagina - 1) * _reg_x_pag;
 	
@@ -35,6 +36,13 @@ BEGIN
 	SET @sentencia = NULL;
 	
 	
+	SET _limit = CONCAT('LIMIT ',_pag_actual,',',_reg_x_pag);
+	
+	IF _flag = 'A' THEN 
+		SET _limit = '';
+	END IF;
+	
+	
 	SET @sentencia = CONCAT('
 	SELECT  
 		nombres, 
@@ -43,7 +51,7 @@ BEGIN
 		@countx AS total 
 	FROM f_trabajador 
 	',search,' 
-	LIMIT ',_pag_actual,',',_reg_x_pag,';
+	',_limit,';
 	');
 	
 	PREPARE consulta FROM @sentencia;

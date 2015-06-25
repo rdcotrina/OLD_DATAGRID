@@ -24,7 +24,7 @@ class ConsultarData extends Connect{
         return $result;
     }
     
-    public function getDataSP($flag,$criterio='',$page,$regxpag){
+    public function getDataSP($flag,$criterio='',$page=1,$regxpag=10){
         $sql = "CALL dataGrid('".$flag."','".$criterio."','".$page."','".$regxpag."'); ";
         
         $data = $this->_DB->query($sql);

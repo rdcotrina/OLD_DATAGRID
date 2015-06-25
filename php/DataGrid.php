@@ -6,6 +6,7 @@ class DataGrid{
     private $_columns = array();        /*almacena las columnas*/
     private $_axions  = array();        /*almacena las acciones*/
     private $_data;                     /*almacena la data*/
+    private $_dataExportar;
     public  $totalRegistros;           /*almacena el total de registros*/
     private $_paginate;
     private $_reg_x_pag;
@@ -17,12 +18,15 @@ class DataGrid{
     private $_changeNum = array(10,20,50,100);
     private $_check = false;
     private $_objCheck;
+    private $_excel = false;
+    private $_pdf = false;
+    private $_rutaDocs = '../file/';
 
-    private function createHead(){
+    private function createHead($e=''){
         $header  = '<thead>';
         $header .=      '<tr>';
         
-        if($this->_check){
+        if($this->_check && $e == ''){
             $header .= '<th style="width:1%">'
                     . '<input type="checkbox" id="chk_'.$this->_id.'_all" name="chk_'.$this->_id.'_all" onclick="'
                     . '
@@ -42,7 +46,7 @@ class DataGrid{
             
             $header .= '<th>'.$title.'</th>';
         }
-        if($this->_axions){
+        if($this->_axions && $e == ''){
             $header .= '<th>Acciones</th>';
         }
         $header .=      '</tr>';
@@ -143,7 +147,7 @@ class DataGrid{
         return $td2;
     }
 
-    private function createRows(){
+    private function createRows($e=''){
         $rw = 0;
         $tbody  = '<tbody>';
         
@@ -152,7 +156,7 @@ class DataGrid{
                 $rw++;
                 $tbody .= '<tr>';
                 
-                if($this->_check){
+                if($this->_check && $e == ''){
                     $tbody .= $this->renderCheckbox($rw,$row);
                 }
                 
@@ -182,7 +186,7 @@ class DataGrid{
                     
                 }
                 /*creando acciones*/
-                if($this->_axions){
+                if($this->_axions && $e == ''){
                     $tbody .= '<td style="text-align:center">'.$this->createAxions($row,$rw).'</td>';
                 }
                 $tbody .= '</tr>';
@@ -319,6 +323,12 @@ class DataGrid{
         
         $this->_data = $result;
         $this->totalRegistros = $this->_data[0]['total'];
+        
+        if($this->_excel || $this->_pdf){
+            $result = $Obj->$method('A',  $this->_criterio);
+        
+            $this->_dataExportar = $result;
+        }
     }
 
     public function render(){
@@ -346,7 +356,51 @@ class DataGrid{
            $table .= '</div>'; 
         }
         
+        if($this->_excel || $this->_pdf){
+            $this->renderExportar();
+        }
+        
         return $table;
+    }
+    
+    private function renderExportar(){
+        $table  = '<table border="1" width="100%" class="table table-striped table-bordered table-hover">';
+        $table .= $this->createHead('E');
+        $table .= $this->createRows('E');
+        $table .= '</table>';
+        
+        /* crear excel */
+        if ($this->_excel) {
+            $nuevoarchivo = fopen($this->_rutaDocs . 'tmpExcel.xls', "w+");
+            fwrite($nuevoarchivo, $table);
+            fclose($nuevoarchivo);
+        }
+        
+        /* crear pdf */
+        if ($this->_pdf) {
+              
+            require_once '../lib/html2pdf/html2pdf.class.php';
+            
+            $html2pdf = new HTML2PDF('P', 'A4', 'fr');
+            $html2pdf->setDefaultFont('Arial');
+            $html2pdf->writeHTML($table);
+            $html2pdf->Output($this->_rutaDocs . 'tmpPDF.pdf','F');
+    
+//            require_once '../lib/mpdf/mpdf.php';
+//            
+//            $mpdf=new mPDF(); 
+//            $mpdf->WriteHTML($table);
+//
+//            $mpdf->Output($this->_rutaDocs . 'tmpPDF.pdf','F');
+        }
+    }
+
+    public function excel(){
+        $this->_excel = true;
+    }
+    
+    public function pdf(){
+        $this->_pdf = true;
     }
     
 }

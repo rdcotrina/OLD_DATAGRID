@@ -9,6 +9,9 @@ $criterio = isset($_REQUEST['_criterio'])?$_REQUEST['_criterio']:'';
 $page     = isset($_REQUEST['_page'])?$_REQUEST['_page']:1;
 $regxpag  = isset($_REQUEST['_regxpag'])?$_REQUEST['_regxpag']:10;
 
+$Grid->excel();
+$Grid->pdf();
+
 $Grid->addCheckBox(array(
     "values"=>array("apellidos","nombres"),
     "ajax"=>array(
