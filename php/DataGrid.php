@@ -1,5 +1,4 @@
 <?php
-
 class DataGrid{
     
     private $_id;
@@ -205,6 +204,57 @@ class DataGrid{
         return $tbody;
     }
 
+    private function createRowsExportar(){
+        $rw = 0;
+        $tbody  = '<tbody>';
+        
+        if(count($this->_dataExportar)){
+            foreach ($this->_dataExportar as $row) {
+                $rw++;
+                $tbody .= '<tr>';
+                
+                foreach ($this->_columns as $col){
+                    $campo = isset($col['campo'])?$col['campo']:'';
+                    $fnCallbak = isset($col['fnCallbak'])?$col['fnCallbak']:'';
+                    
+                    
+                    if(!empty($fnCallbak)){
+                        if(is_callable($fnCallbak)){
+                            $call = call_user_func_array($fnCallbak, array($rw,$row));
+
+                            $f .= $call;
+                        }else{
+                            $f .= 'ERROR: [fnCallbak] incorrecto, defina clusure para [fnCallbak].';
+                        }
+                    }else{
+                        if(empty($campo)){
+                            $f = 'Campo indefinido';
+                        }else{
+                            $f = $row[$campo];
+                        }
+                    }
+                    
+                    
+                    $tbody .= '<td>'.$f.'</td>';
+                    
+                }
+              
+                $tbody .= '</tr>';
+            }
+        }else{
+            $colspan = count($this->_columns);
+            if($this->_axions){
+                $colspan++;
+            }
+            $tbody .= '<tr>';
+            $tbody .=   '<td colspan="'.$colspan.'" style="text-align:center">No se encontraron registros.</td>';
+            $tbody .= '</tr>';
+        }
+        
+        $tbody .= '</tbody>';
+        return $tbody;
+    }
+    
     private function createPaginator(){
         $total = $this->totalRegistros;
         $paginaActual = $this->_paginate['page'];
@@ -355,7 +405,6 @@ class DataGrid{
            $table .= '<div class="clearfix"></div>';
            $table .= '</div>'; 
         }
-        
         if($this->_excel || $this->_pdf){
             $this->renderExportar();
         }
@@ -366,7 +415,7 @@ class DataGrid{
     private function renderExportar(){
         $table  = '<table border="1" width="100%" class="table table-striped table-bordered table-hover">';
         $table .= $this->createHead('E');
-        $table .= $this->createRows('E');
+        $table .= $this->createRowsExportar();
         $table .= '</table>';
         
         /* crear excel */

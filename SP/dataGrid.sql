@@ -5,7 +5,7 @@ USE `rrhh_`$$
 DROP PROCEDURE IF EXISTS `dataGrid`$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `dataGrid`(
-	IN _flag INT,
+	IN _flag CHAR(1),
 	IN _criterio VARCHAR(200),
 	IN _pagina INT,
 	IN _reg_x_pag INT
